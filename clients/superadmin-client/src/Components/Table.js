@@ -1,99 +1,151 @@
-import React, { useMemo } from "react";
+import { formatDate } from "@elastic/eui";
+import React, { useState, useEffect, useCallback } from "react";
 
-import { useTable } from "react-table";
+import {
+  EuiText,
+  EuiPanel,
+  EuiBasicTable,
+  EuiLink,
+  EuiHealth,
+  EuiButton,
+} from "@elastic/eui";
 
-function Table() {
-  const data = React.useMemo(
-    () => [
-      {
-        col1: "Hello",
-        col2: "World",
-      },
-      {
-        col1: "react-table",
-        col2: "rocks",
-      },
-      {
-        col1: "whatever",
-        col2: "you want",
-      },
-    ],
-    []
-  );
+const axios = require("axios").create({
+  baseURL: "http://localhost:5000/",
+  timeout: 1000,
+});
 
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: "Column 1",
-        accessor: "col1", // accessor is the "key" in the data
-      },
-      {
-        Header: "Column 2",
-        accessor: "col2",
-      },
-    ],
-    []
-  );
-  const tableInstance = useTable({ columns, data });
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    tableInstance;
+const users = [
+  {
+    id: "1",
+    firstName: "john",
+    lastName: "doe",
+    github: "johndoe",
+    dateOfBirth: Date.now(),
+    nationality: "NL",
+    online: true,
+  },
+  {
+    id: "2",
+    firstName: "adam",
+    lastName: "smith",
+    github: "asmith",
+    dateOfBirth: Date.now(),
+    nationality: "UK",
+    online: true,
+  },
+];
+export const Table = () => {
+  const [allOrganizations, setAllOrganizations] = useState([]);
+  const [isRefreshBtnLoading, setIsRefreshBtnLoading] = useState(false);
+
+  useEffect(() => {
+    setIsRefreshBtnLoading(true);
+
+    axios({
+      method: "GET",
+      url: "api/organization",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((response) => {
+        console.log(response);
+        setAllOrganizations(response.data);
+        setIsRefreshBtnLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+        setIsRefreshBtnLoading(false);
+      });
+  }, []);
+
+  const fetchRequest = useCallback(async () => {
+    setIsRefreshBtnLoading(true);
+
+    await axios({
+      method: "GET",
+      url: "api/organization",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((response) => {
+        console.log(response);
+        setTimeout(() => {
+          setAllOrganizations(response.data);
+          setIsRefreshBtnLoading(false);
+        }, 500); // articially slow down the request to show loading spinner
+      })
+      .catch((error) => {
+        console.log(error);
+        setIsRefreshBtnLoading(false);
+      });
+  }, []);
+
+  const columns = [
+    {
+      field: "id",
+      name: "UUID",
+      sortable: true,
+      "data-test-subj": "organizationUuidCell",
+      render: (id) => id,
+    },
+    {
+      field: "name",
+      name: "Name",
+      sortable: true,
+      "data-test-subj": "organizationNameCell",
+      render: (name) => name,
+    },
+
+    {
+      field: "slug",
+      name: "Slug",
+      sortable: false,
+      "data-test-subj": "organizationSlugCell",
+      render: (slug) => slug,
+    },
+  ];
+
+  const items = users;
+
+  const getRowProps = (item) => {
+    const { id } = item;
+    return {
+      "data-test-subj": `row-${id}`,
+      className: "customRowClass",
+      onClick: () => {},
+    };
+  };
+
+  const getCellProps = (item, column) => {
+    const { id } = item;
+    const { field } = column;
+    return {
+      className: "customCellClass",
+      "data-test-subj": `cell-${id}-${field}`,
+      textOnly: true,
+    };
+  };
 
   return (
-    // apply the table props
-    <table {...getTableProps()}>
-      <thead>
-        {
-          // Loop over the header rows
-          headerGroups.map((headerGroup) => (
-            // Apply the header row props
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {
-                // Loop over the headers in each row
-                headerGroup.headers.map((column) => (
-                  // Apply the header cell props
-                  <th {...column.getHeaderProps()}>
-                    {
-                      // Render the header
-                      column.render("Header")
-                    }
-                  </th>
-                ))
-              }
-            </tr>
-          ))
-        }
-      </thead>
-      {/* Apply the table body props */}
-      <tbody {...getTableBodyProps()}>
-        {
-          // Loop over the table rows
-          rows.map((row) => {
-            // Prepare the row for display
-            prepareRow(row);
-            return (
-              // Apply the row props
-              <tr {...row.getRowProps()}>
-                {
-                  // Loop over the rows cells
-                  row.cells.map((cell) => {
-                    // Apply the cell props
-                    return (
-                      <td {...cell.getCellProps()}>
-                        {
-                          // Render the cell contents
-                          cell.render("Cell")
-                        }
-                      </td>
-                    );
-                  })
-                }
-              </tr>
-            );
-          })
-        }
-      </tbody>
-    </table>
+    <div style={{ margin: "3rem" }}>
+      <EuiButton
+        iconType="refresh"
+        isLoading={isRefreshBtnLoading}
+        onClick={fetchRequest}
+      >
+        Refresh
+      </EuiButton>
+      <EuiText>
+        <h2>Table</h2>
+      </EuiText>
+      <EuiPanel>
+        <EuiBasicTable
+          items={allOrganizations}
+          rowHeader="firstName"
+          columns={columns}
+          rowProps={getRowProps}
+          cellProps={getCellProps}
+        />
+      </EuiPanel>
+    </div>
   );
-}
-
-export default Table;
+};

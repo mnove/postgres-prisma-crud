@@ -3,7 +3,7 @@ import logo from "./logo.svg";
 
 import { EuiText, EuiPanel } from "@elastic/eui";
 
-import { Table2 } from "./Components/Table2";
+import { Table } from "./Components/Table";
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
         </EuiText>
       </EuiPanel>
 
-      <Table2 />
+      <Table />
     </div>
   );
 }
