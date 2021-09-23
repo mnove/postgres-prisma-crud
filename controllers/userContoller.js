@@ -3,6 +3,7 @@ const ApiError = require("../errors/ApiError");
 const prisma = new PrismaClient({
   errorFormat: "minimal",
 });
+const bcrypt = require("bcrypt");
 
 const getAll = async (req, res, next) => {
   try {
@@ -77,12 +78,14 @@ const createUser = async (req, res, next) => {
       next(ApiError.notFound("User already exists."));
     } else {
       // create a new user
+      const salt = await bcrypt.genSalt(10); // generate salt for password
+      const hashedPassword = await bcrypt.hash(password, salt); // hashing the password
       const newUser = await prisma.user.create({
         data: {
           first_name: first_name,
           last_name: last_name,
           email: email,
-          password: password,
+          password: hashedPassword, // using hashed password
           phone_number: phone_number,
         },
       });
