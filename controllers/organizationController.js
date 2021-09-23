@@ -26,9 +26,8 @@ const getAll = async (req, res, next) => {
 const getOneOrganization = async (req, res, next) => {
   try {
     const { organizationId } = req.params;
-    console.log(organizationId);
-    console.log(req.params);
-    // check if values are present in the body
+
+    // check if values are present in the params
     if (Object.keys(req.params).length < 1) {
       // return error
       next(
@@ -37,7 +36,7 @@ const getOneOrganization = async (req, res, next) => {
     }
 
     // check if organization ID exists in the DB
-    const doesOrgExists = await organization.findUnique({
+    const doesOrgExists = await prisma.organization.findUnique({
       where: {
         id: organizationId,
       },
@@ -47,7 +46,7 @@ const getOneOrganization = async (req, res, next) => {
       next(ApiError.notFound("Organization does not exists."));
     }
     // get organization
-    const existingOrganization = await organization.findUnique({
+    const existingOrganization = await prisma.organization.findUnique({
       where: {
         // get the correct organization to update
         id: organizationId,
@@ -68,7 +67,7 @@ const getOneOrganization = async (req, res, next) => {
 const createOrganization = async (req, res, next) => {
   try {
     const { name, slug } = req.body;
-    const doesOrgAlreadyExists = await organization.findUnique({
+    const doesOrgAlreadyExists = await prisma.organization.findUnique({
       where: {
         name: name,
       },
@@ -79,7 +78,7 @@ const createOrganization = async (req, res, next) => {
       next(ApiError.badRequest("Organization already exists"));
     } else {
       // create a new organization
-      const newOrganization = await organization.create({
+      const newOrganization = await prisma.organization.create({
         data: {
           name,
           slug,
@@ -109,7 +108,7 @@ const updateOrganization = async (req, res, next) => {
     }
 
     // check if organization ID exists in the DB
-    const doesOrgExists = await organization.findUnique({
+    const doesOrgExists = await prisma.organization.findUnique({
       where: {
         id: id,
       },
@@ -119,7 +118,7 @@ const updateOrganization = async (req, res, next) => {
       next(ApiError.notFound("Organization does not exists."));
     }
     // update organization
-    const updatedOrganization = await organization.update({
+    const updatedOrganization = await prisma.organization.update({
       where: {
         // get the correct organization to update
         id: id,
@@ -162,7 +161,7 @@ const deleteOrganization = async (req, res, next) => {
     }
 
     // check if organization ID exists in the DB
-    const doesOrgExists = await organization.findUnique({
+    const doesOrgExists = await prisma.organization.findUnique({
       where: {
         id: organizationId,
       },

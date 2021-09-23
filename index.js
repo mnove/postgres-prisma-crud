@@ -56,10 +56,9 @@ app.use(failSafeErrorHandler); // Failsafe error handler -
 
 // Catch-all method
 // (e.g. if we hit a route that does not exist)
-app.get("*", (req, res) => {
+app.all("*", (req, res) => {
+  // res.status(404).send("Route not found");
   res.status(404).sendFile(path.join(__dirname, "html/404.html"));
-  // to be impleted properly in the future....
-  // res.sendFile(path.join(__dirname, "client/build/index.html"));
 });
 
 // SERVER //
