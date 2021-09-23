@@ -9,35 +9,18 @@ import {
   EuiHealth,
   EuiButton,
 } from "@elastic/eui";
+import { Flyout } from "./Flyout";
 
 const axios = require("axios").create({
   baseURL: "http://localhost:5000/",
-  timeout: 1000,
 });
 
-const users = [
-  {
-    id: "1",
-    firstName: "john",
-    lastName: "doe",
-    github: "johndoe",
-    dateOfBirth: Date.now(),
-    nationality: "NL",
-    online: true,
-  },
-  {
-    id: "2",
-    firstName: "adam",
-    lastName: "smith",
-    github: "asmith",
-    dateOfBirth: Date.now(),
-    nationality: "UK",
-    online: true,
-  },
-];
 export const Table = () => {
   const [allOrganizations, setAllOrganizations] = useState([]);
   const [isRefreshBtnLoading, setIsRefreshBtnLoading] = useState(false);
+  const [isFlyoutVisible, setIsFlyoutVisible] = useState(false);
+  const [flyoutId, setFlyoutId] = useState("");
+  const [flyoutData, setFlyoutData] = useState({});
 
   useEffect(() => {
     setIsRefreshBtnLoading(true);
@@ -83,7 +66,9 @@ export const Table = () => {
     {
       field: "id",
       name: "UUID",
+      truncateText: false,
       sortable: true,
+      width: "30%",
       "data-test-subj": "organizationUuidCell",
       render: (id) => id,
     },
@@ -91,6 +76,7 @@ export const Table = () => {
       field: "name",
       name: "Name",
       sortable: true,
+      truncateText: true,
       "data-test-subj": "organizationNameCell",
       render: (name) => name,
     },
@@ -102,16 +88,38 @@ export const Table = () => {
       "data-test-subj": "organizationSlugCell",
       render: (slug) => slug,
     },
-  ];
 
-  const items = users;
+    {
+      field: "planId",
+      name: "Plan ID",
+      sortable: false,
+      "data-test-subj": "organizationPlanIdCell",
+      render: (planId) => planId,
+    },
+    {
+      name: "Actions",
+      actions: [
+        {
+          name: "Clone",
+          description: "Edit this person",
+          type: "icon",
+          icon: "indexEdit",
+          onClick: (item) => {
+            setFlyoutId(item.id);
+            setFlyoutData(item);
+            setIsFlyoutVisible(true);
+          },
+        },
+      ],
+    },
+  ];
 
   const getRowProps = (item) => {
     const { id } = item;
     return {
       "data-test-subj": `row-${id}`,
       className: "customRowClass",
-      onClick: () => {},
+      // onClick: () => console.log(`clicked ${id}`),
     };
   };
 
@@ -127,6 +135,17 @@ export const Table = () => {
 
   return (
     <div style={{ margin: "3rem" }}>
+      {/* <EuiButton onClick={() => setIsFlyoutVisible(true)}>
+        Show flyout
+      </EuiButton> */}
+
+      <Flyout
+        isFlyoutVisible={isFlyoutVisible}
+        setIsFlyoutVisible={setIsFlyoutVisible}
+        flyoutId={flyoutId}
+        flyoutData={flyoutData}
+      />
+
       <EuiButton
         iconType="refresh"
         isLoading={isRefreshBtnLoading}

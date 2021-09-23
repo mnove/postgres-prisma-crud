@@ -13,10 +13,53 @@ const getAll = async (req, res, next) => {
         id: true,
         name: true,
         slug: true,
+        planId: true,
       },
     });
 
     return res.status(200).json(allOrganizations);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getOneOrganization = async (req, res, next) => {
+  try {
+    const { organizationId } = req.params;
+    console.log(organizationId);
+    console.log(req.params);
+    // check if values are present in the body
+    if (Object.keys(req.params).length < 1) {
+      // return error
+      next(
+        ApiError.badRequest("Organization ID not found in the request param")
+      );
+    }
+
+    // check if organization ID exists in the DB
+    const doesOrgExists = await organization.findUnique({
+      where: {
+        id: organizationId,
+      },
+    });
+    if (!doesOrgExists) {
+      // return error
+      next(ApiError.notFound("Organization does not exists."));
+    }
+    // get organization
+    const existingOrganization = await organization.findUnique({
+      where: {
+        // get the correct organization to update
+        id: organizationId,
+      },
+      select: {
+        // selected organization data
+        name: true,
+        slug: true,
+        planId: true,
+      },
+    });
+    return res.status(200).json(existingOrganization);
   } catch (error) {
     next(error);
   }
@@ -53,7 +96,8 @@ const createOrganization = async (req, res, next) => {
 const updateOrganization = async (req, res, next) => {
   try {
     const { id, name, slug, planId } = req.body;
-
+    let planIdInt = parseInt(planId);
+    console.log("planID", planId);
     // check if values are present in the body
     if (!id || name.length < 1 || slug.length < 1 || planId.length < 1) {
       // return error
@@ -84,7 +128,7 @@ const updateOrganization = async (req, res, next) => {
         // data for update
         name: name,
         slug: slug,
-        planId: planId,
+        planId: planIdInt,
       },
     });
     return res.status(200).json(updatedOrganization);
@@ -147,6 +191,7 @@ const deleteOrganization = async (req, res, next) => {
 
 module.exports = {
   getAll,
+  getOneOrganization,
   createOrganization,
   updateOrganization,
   deleteOrganizationNoParam,

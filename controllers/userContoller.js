@@ -5,18 +5,23 @@ const prisma = new PrismaClient({
 });
 
 const getAll = async (req, res, next) => {
-  // try {
-  //   const allOrganizations = await prisma.organization.findMany({
-  //     select: {
-  //       id: true,
-  //       name: true,
-  //       slug: true,
-  //     },
-  //   });
-  //   return res.status(200).json(allOrganizations);
-  // } catch (error) {
-  //   next(error);
-  // }
+  try {
+    const allUsers = await prisma.user.findMany({
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        email: true,
+        password: true,
+        phone_number: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    return res.status(200).json(allUsers);
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = {
