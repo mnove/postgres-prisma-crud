@@ -15,8 +15,8 @@ const axios = require("axios").create({
   baseURL: "http://localhost:5000/",
 });
 
-export const Table = () => {
-  const [allOrganizations, setAllOrganizations] = useState([]);
+export const UsersTable = () => {
+  const [allUsers, setAllUsers] = useState([]);
   const [isRefreshBtnLoading, setIsRefreshBtnLoading] = useState(false);
   const [isFlyoutVisible, setIsFlyoutVisible] = useState(false);
   const [flyoutId, setFlyoutId] = useState("");
@@ -27,12 +27,12 @@ export const Table = () => {
 
     axios({
       method: "GET",
-      url: "api/organization",
+      url: "api/user",
       headers: { "Content-Type": "application/json" },
     })
       .then((response) => {
         console.log(response);
-        setAllOrganizations(response.data);
+        setAllUsers(response.data);
         setIsRefreshBtnLoading(false);
       })
       .catch((error) => {
@@ -46,13 +46,13 @@ export const Table = () => {
 
     await axios({
       method: "GET",
-      url: "api/organization",
+      url: "api/user",
       headers: { "Content-Type": "application/json" },
     })
       .then((response) => {
         console.log(response);
         setTimeout(() => {
-          setAllOrganizations(response.data);
+          setAllUsers(response.data);
           setIsRefreshBtnLoading(false);
         }, 500); // articially slow down the request to show loading spinner
       })
@@ -66,35 +66,60 @@ export const Table = () => {
     {
       field: "id",
       name: "UUID",
-      truncateText: false,
+      truncateText: true,
       sortable: true,
-      width: "30%",
+      width: "15%",
       "data-test-subj": "organizationUuidCell",
       render: (id) => id,
     },
     {
-      field: "name",
-      name: "Name",
-      sortable: true,
+      field: "first_name",
+      name: "First Name",
+      sortable: false,
       truncateText: true,
-      "data-test-subj": "organizationNameCell",
-      render: (name) => name,
+      "data-test-subj": "organizationFirstNameCell",
+      render: (first_name) => first_name,
     },
 
     {
-      field: "slug",
-      name: "Slug",
+      field: "last_name",
+      name: "Last Name",
       sortable: false,
-      "data-test-subj": "organizationSlugCell",
-      render: (slug) => slug,
+      truncateText: true,
+      "data-test-subj": "organizationLastNameCell",
+      render: (last_name) => last_name,
     },
 
     {
-      field: "planId",
-      name: "Plan ID",
+      field: "email",
+      name: "Email",
       sortable: false,
-      "data-test-subj": "organizationPlanIdCell",
-      render: (planId) => planId,
+      truncateText: false,
+      "data-test-subj": "organizationEmailCell",
+      render: (email) => email,
+    },
+    {
+      field: "phone_number",
+      name: "Phone",
+      sortable: false,
+      truncateText: true,
+      "data-test-subj": "organizationPhoneNumberCell",
+      render: (phone_number) => phone_number,
+    },
+    {
+      field: "created_at",
+      name: "Created At",
+      sortable: false,
+      "data-test-subj": "organizationCreatedAtCell",
+      render: (created_at) => created_at,
+    },
+
+    {
+      field: "updated_at",
+      name: "Updated At",
+      sortable: false,
+      "data-test-subj": "organizationUpdatedAtCell",
+      render: (updated_at) => updated_at,
     },
     {
       name: "Actions",
@@ -154,11 +179,11 @@ export const Table = () => {
         Refresh
       </EuiButton>
       <EuiText>
-        <h2>Organizations</h2>
+        <h2>Users</h2>
       </EuiText>
       <EuiPanel>
         <EuiBasicTable
-          items={allOrganizations}
+          items={allUsers}
           rowHeader="firstName"
           columns={columns}
           rowProps={getRowProps}
