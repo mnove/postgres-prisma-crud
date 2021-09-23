@@ -154,7 +154,7 @@ export const Table = () => {
         Refresh
       </EuiButton>
       <EuiText>
-        <h2>Table</h2>
+        <h2>Organizations</h2>
       </EuiText>
       <EuiPanel>
         <EuiBasicTable
