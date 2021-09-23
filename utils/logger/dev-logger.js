@@ -1,12 +1,7 @@
 const { format, createLogger, transports } = require("winston");
 const { timestamp, combine, printf, errors } = format;
 
-const chalk = require("chalk");
-
-// class DevLogger {}
-
-// function buildDevLogger() {}
-
+// only for development env.
 function buildDevLogger() {
   const logFormat = printf(({ level, message, timestamp, stack }) => {
     return `${timestamp} ${level}: ${stack || message}`;
@@ -19,6 +14,7 @@ function buildDevLogger() {
       errors({ stack: true }),
       logFormat
     ),
+    level: "silly",
     transports: [new transports.Console()],
   });
 }
